@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotify Downloader</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.min.css">
+</head>
+<body>
+    <div class="container">
+        <h3 class="text-center mt-3">Spotify Downloader</h3>
+        <div class="row d-flex justify-content-center mt-5">
+            <div class="col-md-6">
+                <form class="form" action="spotify.php" method="post">
+                    <div class="from-group">
+                        <label for="Song" class="form-label">
+                            Song Link
+                        </label>
+                        <input name="link" id="Song" type="text" class="form-control" placeholder="Place Song Link Here">
+                    </div>
+                    <input name="download" type="submit" class="btn btn-outline-success w-100 mt-4" value="Download">
+                </form>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center mt-5">
+            <div class="col-md-6 text-center">
+                <!-- Render audio downloaded -->
+                <div class="audio">
+                    <audio src="sample" controls></audio>
+                </div>
+            </div>
+        </div>
+        <p class="text-center mt-3">Made with <span style="color: red;">&hearts;</span> by <a href="https://github.com/BhoiDanny" target="_blank">Daniel Botchway</a></p>
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.3/sweetalert2.min.js"></script>
+    <script>
+        let st = $.noConflict();
+
+        st(document).ready(function() {
+            let form = st("form.form");
+            
+            form.on('submit', function(e){
+                e.preventDefault();
+                
+                st.ajax({
+                    method: "post",
+                    url: "./spotify.php",
+                    data: {
+                        link: st("#Song").val(),
+                        download: "Download"
+                    },
+                    beforeSend: function() {
+                        st("input[name='download']").val("Downloading...");
+                    },
+                    success: function($res) {
+                        $res = JSON.parse($res);
+                        if($res.status == "success") {
+                            Swal.fire({
+                                title: "Downloaded",
+                                text: $res.message,
+                                icon: "success",
+                            }).then(()=>{
+                                st("input[name='download']").val("Download");
+                                st("audio").attr("src", $res.link);
+                            });
+                            
+                        } else {
+                            Swal.fire({
+                                title: "Error",
+                                text: $res.message,
+                                icon: "error",
+                            })
+                            st("input[name='download']").val("Download");
+                        }
+                    },
+                    fail: function($err) {
+                        console.log($err);
+                    },
+                    error: function($err) {
+                        console.log($err);
+                        st("input[name='download']").val("Download");
+                    }
+                });
+            })
+        })
+    </script>
+</body>
+</html>
